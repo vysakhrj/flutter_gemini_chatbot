@@ -57,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Safety Settings
 
   final gemini = GoogleGemini(
-      apiKey: "AIzaSyDuR4HC28ak-a9s0AbgI-n2Z8k9u_Ql57o",
+      apiKey: "---your api key-----",
       config: GenerationConfig(
           temperature: 0.5,
           maxOutputTokens: 100,
