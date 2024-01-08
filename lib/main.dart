@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_gemini/google_gemini.dart';
 import 'package:google_gemini/src/models/config/gemini_safety_settings.dart';
 import 'package:google_gemini/src/models/config/gemini_config.dart';
 
-void main() {
+void main() async {
+  await dotenv.load(fileName: "lib/.env");
+
   runApp(const MyApp());
 }
 
@@ -14,27 +17,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Gemini Flutter',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Google Gemini Test'),
+      home: const MyHomePage(title: 'Google Gemini '),
     );
   }
 }
@@ -57,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Safety Settings
 
   final gemini = GoogleGemini(
-      apiKey: "---your api key-----",
+      apiKey: dotenv.env['GOOGLE_AI_API']!,
       config: GenerationConfig(
           temperature: 0.5,
           maxOutputTokens: 100,
@@ -72,14 +60,14 @@ class _MyHomePageState extends State<MyHomePage> {
       ]);
 
   void _sendQuery() {
+    responseList.add(
+        {'type': 'question', 'text': textEditingController.text.toString()});
     setState(() {
       isLoading = true;
     });
     gemini
         .generateFromText(textEditingController.text.toString())
         .then((value) {
-      responseList.add(
-          {'type': 'question', 'text': textEditingController.text.toString()});
       textEditingController.clear();
 
       setState(() {
@@ -87,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
         isLoading = false;
       });
-      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+      // scrollController.jumpTo(scrollController.position.maxScrollExtent);
     }).catchError((e) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Something went wrong. Try again.')));
@@ -97,8 +85,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   @override
   Widget build(BuildContext context) {
-    scrollController.jumpTo(scrollController.position.maxScrollExtent);
-
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -152,7 +138,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
-                                      color: Colors.black,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                       borderRadius: BorderRadius.circular(9)),
                                   child: const Text(
                                     'U',
